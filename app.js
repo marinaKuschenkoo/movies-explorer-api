@@ -13,12 +13,15 @@ const { login, createUser } = require('./controllers/users'); //подключе
 const NotFoundError = require('./errors/NotFoundError');
 const ServerErrorHandler = require('./middlewares/ServerErrorHandler');
 const { requestLogger, errorLogger } = require('./middlewares/logger'); //логгер
+const cors = require('./middlewares/cors');
 
 const app = express();
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, NODE_ENV, DB } = process.env;
+
+app.use(cors);
 app.use(express.json());
 
-mongoose.connect('mongodb://127.0.0.1:27017/moviedb', {
+mongoose.connect(NODE_ENV === 'production' ? DB: 'mongodb://127.0.0.1:27017/moviedb', {
   useNewUrlParser: true,
 });
 
