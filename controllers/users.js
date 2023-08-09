@@ -2,14 +2,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
-//Errors
+// Errors
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const AlreadyExistError = require('../errors/AlreadyExistError');
 
 const { JWT_SECRET, NODE_ENV } = process.env;
 
-//Авторизация
+// Авторизация
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
@@ -23,7 +23,7 @@ module.exports.login = (req, res, next) => {
     .catch(next);
 };
 
-//Регистрация
+// Регистрация
 module.exports.createUser = (req, res, next) => {
   const {
     name,
@@ -57,24 +57,16 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
-//users/me-Получение информации текущего пользователя
-module.exports.getCurrentUser = (req, res) => {
+// users/me-Получение информации текущего пользователя
+module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
-      res.send({user})
+      res.send({ user });
     })
-    .catch(next)
-}
+    .catch(next);
+};
 
-/*module.exports.getUsers = (req, res) => {
-  User.find({})
-    .then((users) => {
-      res.send({ users });
-    })
-    .catch((err) => next(err));
-};*/
-
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const userId = req.user._id;
   User.findByIdAndUpdate(
     userId,
@@ -87,18 +79,18 @@ module.exports.updateProfile = (req, res) => {
       runValidators: true,
     },
   )
-  .then((user) => {
-    if (!user) {
-      throw new NotFoundError(' Запрашиваемый пользователь не найден');
-    }
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError(' Запрашиваемый пользователь не найден');
+      }
 
-    res.send({ user });
-  })
-  .catch((err) => {
-    if (err.name === 'ValidationError') {
-      next(new BadRequestError('Некорректные данные при обновлении информации о пользователе'));
-    } else {
-      next(err);
-    }
-  });
+      res.send({ user });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Некорректные данные при обновлении информации о пользователе'));
+      } else {
+        next(err);
+      }
+    });
 };

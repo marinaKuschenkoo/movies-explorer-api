@@ -1,5 +1,3 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const Movie = require('../models/movie');
 
 const NotFoundError = require('../errors/NotFoundError');
@@ -7,15 +5,27 @@ const InterdictionError = require('../errors/InterdictionError');
 const BadRequestError = require('../errors/BadRequestError');
 
 // возвращает все сохранённые текущим пользователем фильмы
-module.exports.getMovies = (req,res,next) => {
+module.exports.getMovies = (req, res, next) => {
   Movie.find({})
-    .then(movies => res.send({movies}))
+    .then((movies) => res.send({ movies }))
     .catch((err) => next(err));
-}
+};
 
 // создаёт фильм
 module.exports.createMovie = (req, res, next) => {
-  const { country, director, duration, year, description, image, trailerLink, nameRU, nameEN, thumbnail, movieId } = req.body;
+  const {
+    country,
+    director,
+    duration,
+    year,
+    description,
+    image,
+    trailerLink,
+    nameRU,
+    nameEN,
+    thumbnail,
+    movieId,
+  } = req.body;
   Movie.create({
     country,
     director,
@@ -34,7 +44,7 @@ module.exports.createMovie = (req, res, next) => {
       if (!movie) {
         throw new NotFoundError('Некорректные поля при создании фильма');
       }
-      res.send({movie});
+      res.send({ movie });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
