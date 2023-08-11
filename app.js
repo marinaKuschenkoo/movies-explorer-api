@@ -8,6 +8,7 @@ const limiter = require('./middlewares/limiter');
 const routes = require('./routes');
 
 const ServerErrorHandler = require('./middlewares/ServerErrorHandler');
+const { DATABASE } = require('./utils/constants');
 const { requestLogger, errorLogger } = require('./middlewares/logger'); // логгер
 const cors = require('./middlewares/cors');
 
@@ -16,8 +17,7 @@ const { PORT = 3000, NODE_ENV, DB } = process.env;
 
 app.use(cors);
 app.use(express.json());
-
-mongoose.connect(NODE_ENV === 'production' ? DB : 'mongodb://127.0.0.1:27017/moviedb', {
+mongoose.connect(NODE_ENV === 'production' ? DB : DATABASE, {
   useNewUrlParser: true,
 });
 

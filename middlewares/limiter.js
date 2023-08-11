@@ -1,6 +1,5 @@
 const rateLimit = require('express-rate-limit');
-
-const MAX_LIMIT_RATE_ERROR = 'Превышено ограничение количества запросов, попробуйте снова позже.';
+const { MAX_LIMIT_RATE_ERROR } = require('../utils/constants');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

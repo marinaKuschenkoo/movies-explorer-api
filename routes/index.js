@@ -6,6 +6,7 @@ const movieRouter = require('./movies');
 const auth = require('../middlewares/auth');
 const { createUser, login } = require('../controllers/users');
 const NotFoundError = require('../errors/NotFoundError');
+const { PAGE_NOT_FOUND_MESSAGE } = require('../utils/constants');
 
 // регистрация
 router.post('/signup', registerValidate, createUser);
@@ -16,7 +17,7 @@ router.post('/signin', authValidate, login);
 router.use('/', auth, userRouter);
 router.use('/', auth, movieRouter);
 router.use('*', auth, (req, res, next) => {
-  next(new NotFoundError('Страницы не существует'));
+  next(new NotFoundError(PAGE_NOT_FOUND_MESSAGE));
 });
 
 module.exports = router;

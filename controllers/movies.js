@@ -1,12 +1,19 @@
 const Movie = require('../models/movie');
 
 const NotFoundError = require('../errors/NotFoundError');
-const InterdictionError = require('../errors/InterdictionError');
+const ForbiddenError = require('../errors/ForbiddenError');
 const BadRequestError = require('../errors/BadRequestError');
+const {
+  INVALID_MOVIE_DATA,
+  NOT_FOUND_MOVIE_MESSAGE,
+  ACCESS_MESSAGE,
+  INVALID_DATA,
+} = require('../utils/constants');
+// const {} = require('../utils/constants');
 
 // возвращает все сохранённые текущим пользователем фильмы
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  Movie.find({ owner: req.user._id })
     .then((movies) => res.send({ movies }))
     .catch((err) => next(err));
 };
@@ -40,15 +47,10 @@ module.exports.createMovie = (req, res, next) => {
     movieId,
     owner: req.user,
   })
-    .then((movie) => {
-      if (!movie) {
-        throw new NotFoundError('Некорректные поля при создании фильма');
-      }
-      res.send({ movie });
-    })
+    .then((movie) => { res.send({ movie }); })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании фильма.'));
+        next(new BadRequestError(INVALID_MOVIE_DATA));
       } else {
         next(err);
       }
@@ -60,9 +62,9 @@ module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params._id)
     .then((movie) => {
       if (!movie) {
-        throw new NotFoundError('Фильм с данным _id не найдена');
+        throw new NotFoundError(NOT_FOUND_MOVIE_MESSAGE);
       } else if (movie && !(movie.owner.toString() === req.user._id)) {
-        throw new InterdictionError('Невозможно удалить фильм с другим _id пользователя');
+        throw new ForbiddenError(ACCESS_MESSAGE);
       }
 
       Movie.deleteOne(movie)
@@ -71,7 +73,7 @@ module.exports.deleteMovie = (req, res, next) => {
     })
     .catch((error) => {
       if (error.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные при удалении фильма'));
+        next(new BadRequestError(INVALID_DATA));
       } else {
         next(error);
       }
